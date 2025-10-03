@@ -1,13 +1,13 @@
-import { useState } from 'react';
-import type { FormEvent } from 'react';
+// src/pages/Login.tsx
+import { useState, type FormEvent } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { useNavigate, useLocation, Link } from 'react-router-dom';
 
 export default function Login() {
-  const { login, register } = useAuth();
+  const { login } = useAuth();
   const navigate = useNavigate();
   const location = useLocation() as any;
-  const [modo, setModo] = useState<'login' | 'registo'>('login');
+
   const [email, setEmail] = useState('');
   const [pass, setPass] = useState('');
   const [busy, setBusy] = useState(false);
@@ -18,15 +18,11 @@ export default function Login() {
     setBusy(true);
     setErro(null);
     try {
-      if (modo === 'login') {
-        await login(email, pass);
-      } else {
-        await register(email, pass);
-      }
+      await login(email, pass);
       const from = location.state?.from?.pathname ?? '/';
       navigate(from);
     } catch (err: any) {
-      setErro(err?.message ?? 'Ocorreu um erro.');
+      setErro(err?.message ?? 'Ocorreu um erro no login.');
     } finally {
       setBusy(false);
     }
@@ -34,7 +30,7 @@ export default function Login() {
 
   return (
     <div style={{ padding: 16, maxWidth: 420 }}>
-      <h1>{modo === 'login' ? 'Entrar' : 'Criar conta'}</h1>
+      <h1>Entrar</h1>
       <form onSubmit={onSubmit}>
         <div style={{ marginBottom: 8 }}>
           <label>Email<br />
@@ -47,21 +43,11 @@ export default function Login() {
           </label>
         </div>
         {erro && <p style={{ color: 'crimson' }}>{erro}</p>}
-        <button type="submit" disabled={busy}>
-          {busy ? 'A enviar…' : (modo === 'login' ? 'Entrar' : 'Criar conta')}
-        </button>
+        <button type="submit" disabled={busy}>{busy ? 'A entrar…' : 'Entrar'}</button>
       </form>
 
       <div style={{ marginTop: 12 }}>
-        {modo === 'login' ? (
-          <button onClick={() => setModo('registo')}>Não tens conta? Registar</button>
-        ) : (
-          <button onClick={() => setModo('login')}>Já tenho conta → Entrar</button>
-        )}
-      </div>
-
-      <div style={{ marginTop: 12 }}>
-        <Link to="/">Voltar à página inicial</Link>
+        Não tens conta? <Link to="/register">Criar conta</Link>
       </div>
     </div>
   );
